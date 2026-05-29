@@ -7,6 +7,55 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /* --------------------------------------------------------
+   Enqueue parent + child styles and scripts
+-------------------------------------------------------- */
+function stme_child_enqueue() {
+    $ver = '1.0.0';
+
+    // Parent Hello Elementor stylesheet
+    wp_enqueue_style(
+        'hello-elementor-parent',
+        get_template_directory_uri() . '/style.css',
+        [],
+        wp_get_theme( get_template() )->get( 'Version' )
+    );
+
+    // Google Fonts
+    wp_enqueue_style(
+        'stme-fonts',
+        'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Cairo:wght@400;500;600;700;800&display=swap',
+        [],
+        null
+    );
+
+    // STME child stylesheet
+    wp_enqueue_style(
+        'stme-child',
+        get_stylesheet_directory_uri() . '/assets/css/stme.css',
+        [ 'hello-elementor-parent', 'stme-fonts' ],
+        $ver
+    );
+
+    // STME JS
+    wp_enqueue_script(
+        'stme-child-js',
+        get_stylesheet_directory_uri() . '/assets/js/stme.js',
+        [],
+        $ver,
+        true
+    );
+
+    // Pass data to JS
+    wp_localize_script( 'stme-child-js', 'STME', [
+        'themeUri' => get_stylesheet_directory_uri(),
+        'homeUrl'  => home_url('/'),
+        'ajaxUrl'  => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('stme_contact'),
+    ] );
+}
+add_action( 'wp_enqueue_scripts', 'stme_child_enqueue' );
+
+/* --------------------------------------------------------
    Theme setup
 -------------------------------------------------------- */
 function stme_child_setup() {
@@ -21,9 +70,9 @@ function stme_child_setup() {
         'flex-height' => true,
         'flex-width'  => true,
     ] );
-    add_theme_support( 'wc-product-gallery-zoom' );
-    add_theme_support( 'wc-product-gallery-lightbox' );
-    add_theme_support( 'wc-product-gallery-slider' );
+    add_theme_support( 'align-wide' );
+    add_theme_support( 'editor-styles' );
+    add_theme_support( 'wp-block-styles' );
 
     register_nav_menus( [
         'primary' => __( 'Primary Navigation', 'stme' ),
@@ -31,56 +80,6 @@ function stme_child_setup() {
     ] );
 }
 add_action( 'after_setup_theme', 'stme_child_setup' );
-
-/* --------------------------------------------------------
-   Enqueue parent + child styles and scripts
--------------------------------------------------------- */
-function stme_child_scripts() {
-    $ver = '1.0.0';
-    $child_uri = get_stylesheet_directory_uri();
-
-    // Parent Hello Elementor stylesheet
-    wp_enqueue_style(
-        'hello-elementor-parent',
-        get_template_directory_uri() . '/style.css',
-        [],
-        wp_get_theme( 'hello-elementor' )->get( 'Version' )
-    );
-
-    // Google Fonts
-    wp_enqueue_style(
-        'stme-fonts',
-        'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Cairo:wght@400;500;600;700;800&display=swap',
-        [],
-        null
-    );
-
-    // STME child stylesheet
-    wp_enqueue_style(
-        'stme-child',
-        $child_uri . '/assets/css/stme.css',
-        [ 'hello-elementor-parent', 'stme-fonts' ],
-        $ver
-    );
-
-    // STME JS
-    wp_enqueue_script(
-        'stme-child-js',
-        $child_uri . '/assets/js/stme.js',
-        [],
-        $ver,
-        true
-    );
-
-    // Pass data to JS
-    wp_localize_script( 'stme-child-js', 'STME', [
-        'themeUri' => $child_uri,
-        'homeUrl'  => home_url( '/' ),
-        'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
-        'nonce'    => wp_create_nonce( 'stme_contact' ),
-    ] );
-}
-add_action( 'wp_enqueue_scripts', 'stme_child_scripts' );
 
 /* --------------------------------------------------------
    Widget areas
@@ -135,14 +134,15 @@ add_action( 'init', 'stme_register_post_types' );
 
 /* --------------------------------------------------------
    Helper: STME logo HTML
-   Uses child theme path so logo is always found.
+   Uses child theme assets directory so the logo is available
+   before a custom logo is set in the Customizer.
 -------------------------------------------------------- */
 function stme_logo( $class = '' ) {
     if ( has_custom_logo() ) {
         return get_custom_logo();
     }
     $src = get_stylesheet_directory_uri() . '/assets/images/stme-logo.png';
-    return '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( get_bloginfo( 'name' ) ) . '" class="stme-logo-img' . ( $class ? ' ' . esc_attr( $class ) : '' ) . '" />';
+    return '<img src="' . esc_url( $src ) . '" alt="' . esc_attr( get_bloginfo('name') ) . '" class="stme-logo-img' . ( $class ? ' ' . esc_attr( $class ) : '' ) . '" />';
 }
 
 /* --------------------------------------------------------
@@ -153,26 +153,22 @@ function stme_eyebrow( $label ) {
 }
 
 /* --------------------------------------------------------
-   Contact form handler (AJAX — no-priv + logged-in)
+   Contact form AJAX handler
 -------------------------------------------------------- */
 function stme_handle_contact() {
     check_ajax_referer( 'stme_contact', 'nonce' );
-
-    $name    = sanitize_text_field( $_POST['name']    ?? '' );
-    $email   = sanitize_email(      $_POST['email']   ?? '' );
-    $company = sanitize_text_field( $_POST['company'] ?? '' );
-    $title   = sanitize_text_field( $_POST['title']   ?? '' );
-    $phone   = sanitize_text_field( $_POST['phone']   ?? '' );
-    $interest = sanitize_text_field( $_POST['interest'] ?? '' );
-    $message = sanitize_textarea_field( $_POST['message'] ?? '' );
+    $name    = sanitize_text_field(    $_POST['name']    ?? '' );
+    $email   = sanitize_email(         $_POST['email']   ?? '' );
+    $company = sanitize_text_field(    $_POST['company'] ?? '' );
+    $message = sanitize_textarea_field($_POST['message'] ?? '' );
 
     if ( ! $email || ! $name ) {
         wp_send_json_error( [ 'message' => 'Required fields missing.' ] );
     }
 
-    $to      = get_option( 'admin_email' );
+    $to      = get_option('admin_email');
     $subject = "New contact: {$name} — {$company}";
-    $body    = "Name: {$name}\nEmail: {$email}\nCompany: {$company}\nTitle: {$title}\nPhone: {$phone}\nInterest: {$interest}\n\nMessage:\n{$message}";
+    $body    = "Name: {$name}\nEmail: {$email}\nCompany: {$company}\n\nMessage:\n{$message}";
     $headers = [ 'Content-Type: text/plain; charset=UTF-8', "Reply-To: {$email}" ];
 
     wp_mail( $to, $subject, $body, $headers );
@@ -194,7 +190,7 @@ function stme_insight_type_cb( $post ) {
     $types = [ 'Note', 'Customer story', 'Brief', 'News', 'Announcement', 'Award' ];
     echo '<select name="stme_insight_type" style="width:100%">';
     foreach ( $types as $t ) {
-        echo '<option value="' . esc_attr( $t ) . '"' . selected( $type, $t, false ) . '>' . esc_html( $t ) . '</option>';
+        echo '<option value="' . esc_attr($t) . '"' . selected($type, $t, false) . '>' . esc_html($t) . '</option>';
     }
     echo '</select>';
 }
