@@ -1,0 +1,196 @@
+/* =============================================================
+   STME Design System — colors_and_type.css
+   Tokens for the redesign (square-edged, type-first, restrained).
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---------- Color: neutrals ---------- */
+  --ink:        #0E0E10;
+  --ink-2:      #1A1A1F;   /* charcoal / dark surface */
+  --mute:       #6B6B70;
+  --mute-2:     #9B9B9F;
+  --hairline:   #E6E4DF;
+  --soft:       #F5F4F1;   /* warm off-white sections */
+  --paper:      #FFFFFF;
+
+  /* ---------- Color: brand ---------- */
+  --orange:       #F26B1F;   /* primary signal */
+  --orange-deep:  #D9531A;   /* hover / press */
+  --orange-soft:  #FDEEE2;   /* fills, tag backgrounds */
+  --blue:         #3FA8E0;   /* secondary, sparing */
+  --blue-deep:    #2A86B8;
+  --blue-soft:    #E3F1FB;
+
+  /* ---------- Color: semantic ---------- */
+  --success:    #1F8A5B;
+  --warning:    #C2860B;
+  --danger:     #C03B2B;
+
+  /* ---------- Color: roles (used by components) ---------- */
+  --fg-1:       var(--ink);
+  --fg-2:       var(--mute);
+  --fg-3:       var(--mute-2);
+  --bg-1:       var(--paper);
+  --bg-2:       var(--soft);
+  --bg-inverse: var(--ink-2);
+  --fg-inverse: var(--paper);
+  --accent:     var(--orange);
+  --accent-fg:  #FFFFFF;
+  --border:     var(--hairline);
+  --link:       var(--ink);
+  --link-hover: var(--orange);
+
+  /* ---------- Type ---------- */
+  --font-sans:  'Manrope', ui-sans-serif, system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* sizes */
+  --fz-display: 5.5rem;   /* 88 */
+  --fz-h1:      3.75rem;  /* 60 */
+  --fz-h2:      2.5rem;   /* 40 */
+  --fz-h3:      1.625rem; /* 26 */
+  --fz-h4:      1.25rem;  /* 20 */
+  --fz-body:    1rem;     /* 16 */
+  --fz-small:   0.875rem; /* 14 */
+  --fz-eyebrow: 0.75rem;  /* 12 */
+
+  /* line-height + tracking */
+  --lh-display: 0.98;
+  --lh-heading: 1.06;
+  --lh-body:    1.55;
+  --lh-tight:   1.2;
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-body:    0;
+  --tracking-eyebrow: 0.12em;
+
+  /* ---------- Spacing (4px base) ---------- */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px;
+  --space-40: 160px;
+
+  /* ---------- Radii ---------- */
+  --radius-0:   0px;       /* default */
+  --radius-1:   4px;       /* chips, inputs */
+  --radius-pill: 999px;
+
+  /* ---------- Borders ---------- */
+  --border-hairline: 1px solid var(--hairline);
+  --border-ink:      1px solid var(--ink);
+
+  /* ---------- Shadow (used sparingly) ---------- */
+  --shadow-pop:  0 24px 60px -20px rgba(14, 14, 16, 0.18);
+  --shadow-nav:  0 1px 0 var(--hairline);
+
+  /* ---------- Motion ---------- */
+  --ease:        cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-micro:   150ms;
+  --dur-base:    240ms;
+  --dur-slow:    400ms;
+
+  /* ---------- Layout ---------- */
+  --container:    1280px;
+  --nav-height:   72px;
+  --section-y-d:  120px;
+  --section-y-m:  64px;
+}
+
+/* =============================================================
+   Base elements (semantic CSS)
+   ============================================================= */
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fz-body);
+  line-height: var(--lh-body);
+  color: var(--fg-1);
+  background: var(--bg-1);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--fg-1);
+}
+h1 {
+  font-size: var(--fz-h1);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  text-wrap: balance;
+}
+h2 {
+  font-size: var(--fz-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--tracking-heading);
+  text-wrap: balance;
+}
+h3 {
+  font-size: var(--fz-h3);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+h4 {
+  font-size: var(--fz-h4);
+  line-height: var(--lh-tight);
+  font-weight: 600;
+}
+
+p { margin: 0; text-wrap: pretty; }
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  background-image: linear-gradient(var(--orange), var(--orange));
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  transition: background-size var(--dur-base) var(--ease), color var(--dur-base) var(--ease);
+}
+a:hover { color: var(--link-hover); background-size: 100% 1px; }
+
+code, pre, kbd { font-family: var(--font-mono); font-size: 0.95em; }
+
+::selection { background: var(--ink); color: var(--paper); }
+
+/* utility classes for previews + UI kit */
+.eyebrow {
+  font-size: var(--fz-eyebrow);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--mute);
+}
+.display {
+  font-size: var(--fz-display);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: 800;
+}
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+@media (min-width: 768px) {
+  .container { padding-inline: 48px; }
+}
